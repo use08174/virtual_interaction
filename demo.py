@@ -26,14 +26,14 @@ class Button():
         cv2.putText(img, self.text, (x + self.offsetx, y + self.offsety),
                     cv2.FONT_HERSHEY_PLAIN, 4, self.textColor, 4)
     
-    def hover(self, img):
+    def clicked(self, img):
         x, y = self.pos
         w, h = self.size
         cv2.rectangle(img, self.pos, (x + w, y + h), self.color_inverse(), cv2.FILLED)
         cv2.putText(img, self.text, (x + self.offsetx, y + self.offsety),
                     cv2.FONT_HERSHEY_PLAIN, 4, self.textColor, 4)
 
-    def clicked(self, img, size=5, color = (175, 0, 175)):
+    def hover(self, img, size=5, color = (175, 0, 175)):
         x, y = self.pos
         w, h = self.size
         cv2.rectangle(img, (x - size, y - size), (x + w + size, y + h + size), color, cv2.FILLED)
@@ -81,36 +81,36 @@ while True:
     if not success:
         break
 
-		# find hand
+    # find hand
     img = detector.findHands(img)
     # extract hand's position
     lmlist, bboxInfo = detector.findPosition(img)
 
-		# display all the buttons
+    # display all the buttons
     drawAll(img, buttonList)
 
-		# when there is a hand or hands
+    # when there is a hand or hands
     if lmlist:
         for button in buttonList:
+
             x, y = button.pos
             w, h = button.size
 
-						# if finger point is in between one of the button
+            # if finger point is in between one of the button
             if x < lmlist[finger_point][0] < x + w and y < lmlist[finger_point][1] < y + h:
-                button.clicked(img)
-                
+                button.hover(img)
+
                 # detect distance between landmarks in this case, point 12 and point 8
                 l, _, _ = detector.findDistance(finger_point, infinger_point, img, draw=False)
                 # print distance of the point
                 print(l)
 
-                # when clicked
+                ## when clicked
                 if l < 30:
                     keyboard.press(button.text)
-                    button.hover(img)
-                    
+                    button.clicked(img)
                     final_text += button.text
-                    
+
                     #delay
                     sleep(0.15)
 
