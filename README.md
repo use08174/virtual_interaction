@@ -1,5 +1,9 @@
 # Prometheus Virtual Interaction Project
 
+## Completion Timeline
+
+Due ~ 8/24
+
 ## Prerequisites
 Make sure you have `conda` installed on your system. You can download and install Anaconda from [here](https://www.anaconda.com/products/distribution) or Miniconda from [here](https://docs.conda.io/en/latest/miniconda.html).
 
@@ -25,3 +29,6 @@ Make sure you have `conda` installed on your system. You can download and instal
     pip install -r requirements.txt
     ```
 
+## Members
+
+강민수, 김도현, 모진호, 최태은, 심수민
