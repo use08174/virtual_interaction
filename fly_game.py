@@ -1,5 +1,6 @@
 import warnings
 import cv2
+import os
 import random
 import time
 from fly import fly
@@ -49,13 +50,13 @@ def findIf(img, arr):
             spon()
     return img
 
-def cam():
+def cam(cap):
     global start_time, point
     warnings.filterwarnings('ignore', 'SymbolDatabase.GetPrototype() is deprecated. Please use message_factory.GetMessageClass() instead.')
     
     detector = HandDetector(detectionCon=0.7, maxHands=2)
 
-    cap = cv2.VideoCapture(1)
+    # cap = cv2.VideoCapture(1 if os.name == 'posix' and platform.system() == 'Darwin' else 0 if os.name == 'nt' else 'Unknown OS')
     cap.set(3, width)
     cap.set(4, height)
 
@@ -104,11 +105,11 @@ def cam():
         cv2.imshow('Hand Detection Game', frame)
         cv2.waitKey(5000)  # 5초 동안 점수 화면 유지
 
-    cap.release()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    cam()
+    cap = cv2.VideoCapture(1 if os.name == 'posix' and platform.system() == 'Darwin' else 0 if os.name == 'nt' else 'Unknown OS')
+    cam(cap)
     # obj = fly(10,10,10, sumin=1)
     # cv2.imshow("word", obj.skin)
     # cv2.waitKey(5000)

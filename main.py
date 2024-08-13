@@ -1,14 +1,22 @@
 import cv2
 from cvzone.HandTrackingModule import HandDetector
-import subprocess
 import os
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
+from rps_ai import rps_ai
+from charm import charm
+from fly_game import cam
+import platform
 
-# Initialize webcam and hand detector
-cap = cv2.VideoCapture(1)
-cap.set(3, 1280)
-cap.set(4, 720)
+def reset_camera():
+    # Initialize webcam and hand detector
+    cap = cv2.VideoCapture(1 if os.name == 'posix' and platform.system() == 'Darwin' else 0 if os.name == 'nt' else 'Unknown OS')
+    cap.set(3, 1280)  # Reset camera width
+    cap.set(4, 720)   # Reset camera height
+    return cap
+
+cap = reset_camera()
+
 detector = HandDetector(maxHands=1)
 
 # Define button properties
@@ -60,11 +68,18 @@ def draw_buttons(img, buttons, button_positions, button_size, selected_index=Non
 
 while True:
     success, img = cap.read()
+    if not success or img is None:
+        print("Failed to capture image")
+        cap = reset_camera()
+        continue
     img = cv2.flip(img, 1)
-    
+
     # Detect hands
-    hands, img = detector.findHands(img)
-    
+    try:
+        hands, img = detector.findHands(img)
+    except:
+        continue
+
     # Draw buttons
     img = draw_buttons(img, buttons, button_positions, button_size, selected_button_index)
     
@@ -89,14 +104,16 @@ while True:
         if selected_button_index is not None:
             if selected_button_index == 0:
                 # Launch Fly Game
-                subprocess.run(["python", "fly_game.py"])  # Adjust with actual filename
+                cam(cap)
             elif selected_button_index == 1:
                 # Launch Rock-Paper-Scissors
-                subprocess.run(["python", "rps_ai.py"])  # Adjust with actual filename
+                rps_ai(cap)  # Adjust with actual filename
             elif selected_button_index == 2:
                 # Launch Hand Gesture Game
-                subprocess.run(["python", "charm.py"])  # Adjust with actual filename
+                charm(cap)
             button_pressed = False  # Reset button pressed state
+            cap.set(3, 1280)  # Reset camera width
+            cap.set(4, 720) 
 
     # Display the image
     cv2.imshow("Main Menu", img)
