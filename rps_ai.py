@@ -118,6 +118,6 @@ def rps_ai(cap):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     rps_ai(cap)
     cap.release()

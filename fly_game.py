@@ -135,8 +135,6 @@ def cam(cap):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     cam(cap)
-    # obj = fly(10,10,10, sumin=1)
-    # cv2.imshow("word", obj.skin)
-    # cv2.waitKey(5000)
+    cap.release()
