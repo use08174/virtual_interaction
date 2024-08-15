@@ -38,17 +38,43 @@ def runGame(img):
 
     return img
 
-def findIf(img, arr):
+def findIf(img, hand, detector):
     global point
 
-    for i in flies[:]:
-        if i.x < arr[9][0] < i.end_x and i.y < arr[9][1] < i.end_y:
-            point += i.point
-            flies.remove(i)
-            if random.random() < 0.15:
+    # 손의 정보를 가져오기
+    fingers = detector.fingersUp(hand)  # hand에는 이미 'lmList'와 'type'이 포함되어 있음
+    fist = fingers.count(1) == 0  # 모든 손가락이 접혀있으면 주먹
+
+    if fist:
+        for i in flies[:]:
+            if i.x < hand['lmList'][9][0] < i.end_x and i.y < hand['lmList'][9][1] < i.end_y:
+                point += i.point
+                flies.remove(i)
+                if random.random() < 0.15:
+                    spon()
                 spon()
-            spon()
     return img
+
+
+
+
+def add_frame_and_text(img):
+    # 화면에 노란색 테두리 추가
+    color = (0, 255, 255)  # 노란색 (BGR 형식)
+    thickness = 10  # 테두리 두께
+    img = cv2.rectangle(img, (0, 0), (width, height), color, thickness)
+
+    # 상단에 텍스트 추가
+    text = "Catch the Fly!"
+    font_scale = 2
+    thickness = 3
+    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)[0]
+    text_x = (width - text_size[0]) // 2
+    text_y = text_size[1] + 20
+    cv2.putText(img, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, thickness)
+
+    return img
+
 
 def cam(cap):
     global start_time, point
@@ -87,9 +113,10 @@ def cam(cap):
         hands, frame = detector.findHands(frame, draw = False)
 
         frame = runGame(frame)
+        frame = add_frame_and_text(frame)  # 테두리와 텍스트 추가
 
         if hands:
-            frame = findIf(frame, hands[0]['lmList'])
+            frame = findIf(frame, hands[0], detector)  # `hands[0]` 전체를 전달
 
         cv2.imshow('Hand Detection Game', frame)
 
@@ -108,7 +135,7 @@ def cam(cap):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    cap = cv2.VideoCapture(1 if os.name == 'posix' and platform.system() == 'Darwin' else 0 if os.name == 'nt' else 'Unknown OS')
+    cap = cv2.VideoCapture(1)
     cam(cap)
     # obj = fly(10,10,10, sumin=1)
     # cv2.imshow("word", obj.skin)
