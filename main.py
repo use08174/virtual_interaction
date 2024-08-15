@@ -67,60 +67,63 @@ def draw_buttons(img, buttons, button_positions, button_size, selected_index=Non
     return img
 
 while True:
-    success, img = cap.read()
-    if not success or img is None:
-        print("Failed to capture image")
-        cap = reset_camera()
+    try :
+        success, img = cap.read()
+        if not success or img is None:
+            print("Failed to capture image")
+            cap = reset_camera()
+            continue
+        img = cv2.flip(img, 1)
+
+        # Detect hands
+        try:
+            hands, img = detector.findHands(img)
+        except:
+            continue
+
+        # Draw buttons
+        img = draw_buttons(img, buttons, button_positions, button_size, selected_button_index)
+        
+        if hands:
+            hand = hands[0]
+            fingers = detector.fingersUp(hand)
+            cx, cy = hand['center']
+
+            # Highlight the button if hand is hovering over it
+            for i, (x, y) in enumerate(button_positions):
+                width, height = button_size
+                if x < cx < x + width and y < cy < y + height:
+                    selected_button_index = i
+                    if fingers == [0, 0, 0, 0, 0]:  # If the user makes a fist
+                        button_pressed = True
+                    break
+                else:
+                    selected_button_index = None
+        
+        # Check if a button is pressed
+        if button_pressed:
+            if selected_button_index is not None:
+                if selected_button_index == 0:
+                    # Launch Fly Game
+                    cam(cap)
+                elif selected_button_index == 1:
+                    # Launch Rock-Paper-Scissors
+                    rps_ai(cap)  # Adjust with actual filename
+                elif selected_button_index == 2:
+                    # Launch Hand Gesture Game
+                    charm(cap)
+                button_pressed = False  # Reset button pressed state
+                cap.set(3, 1280)  # Reset camera width
+                cap.set(4, 720) 
+
+        # Display the image
+        cv2.imshow("Main Menu", img)
+        
+        key = cv2.waitKey(1)
+        if key == 27:  # Esc key to exit
+            break
+    except : 
         continue
-    img = cv2.flip(img, 1)
-
-    # Detect hands
-    try:
-        hands, img = detector.findHands(img)
-    except:
-        continue
-
-    # Draw buttons
-    img = draw_buttons(img, buttons, button_positions, button_size, selected_button_index)
-    
-    if hands:
-        hand = hands[0]
-        fingers = detector.fingersUp(hand)
-        cx, cy = hand['center']
-
-        # Highlight the button if hand is hovering over it
-        for i, (x, y) in enumerate(button_positions):
-            width, height = button_size
-            if x < cx < x + width and y < cy < y + height:
-                selected_button_index = i
-                if fingers == [0, 0, 0, 0, 0]:  # If the user makes a fist
-                    button_pressed = True
-                break
-            else:
-                selected_button_index = None
-    
-    # Check if a button is pressed
-    if button_pressed:
-        if selected_button_index is not None:
-            if selected_button_index == 0:
-                # Launch Fly Game
-                cam(cap)
-            elif selected_button_index == 1:
-                # Launch Rock-Paper-Scissors
-                rps_ai(cap)  # Adjust with actual filename
-            elif selected_button_index == 2:
-                # Launch Hand Gesture Game
-                charm(cap)
-            button_pressed = False  # Reset button pressed state
-            cap.set(3, 1280)  # Reset camera width
-            cap.set(4, 720) 
-
-    # Display the image
-    cv2.imshow("Main Menu", img)
-    
-    key = cv2.waitKey(1)
-    if key == 27:  # Esc key to exit
-        break
 
 cap.release()
 cv2.destroyAllWindows()
