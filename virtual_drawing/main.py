@@ -2,7 +2,10 @@ import cv2
 import numpy as np
 from cvzone.HandTrackingModule import HandDetector
 import time
+<<<<<<< HEAD
 import subprocess, sys, os
+=======
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 
 
 mode = 0  # 0: Drawing mode, 1: Selection mode
@@ -25,7 +28,11 @@ xp, yp = 0, 0
 drawing_mode = False  # Start with selection mode
 
 # Define the drawing area (center rectangle on the canvas)
+<<<<<<< HEAD
 img_width, img_height = 360, 455  # Set rectangle width and height
+=======
+img_width, img_height = 360, 455
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 rect_x1 = int((width - img_width) / 2)
 rect_y1 = int((height - img_height) / 2)
 rect_x2 = rect_x1 + img_width
@@ -38,13 +45,21 @@ button_width = 120
 button_height = 50
 
 save_button = (
+<<<<<<< HEAD
     rect_x1 - button_width - 60,  # Left of the drawing area
     rect_y1 + 100,                      # Align with top of the drawing area
     rect_x1 - 60,
     rect_y1 + button_height + 100
+=======
+    int(width * 0.8),
+    int(height * 0.05),
+    int(width * 0.95),
+    int(height * 0.15),
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 )
 
 clear_button = (
+<<<<<<< HEAD
     rect_x2 + 60,                 # Right of the drawing area
     rect_y1 + 100,                      # Align with top of the drawing area
     rect_x2 + button_width + 60,
@@ -56,6 +71,17 @@ clear_button = (
 canvas = np.zeros((height, width, 3), np.uint8)
 
 
+=======
+    int(width * 0.8),
+    int(height * 0.2),
+    int(width * 0.95),
+    int(height * 0.3),
+)
+
+# Create a blank canvas to draw on
+canvas = np.zeros((height, width, 3), np.uint8)
+
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 while True:
     if mode == 0:
         success, frame = cap.read()
@@ -86,6 +112,7 @@ while True:
             else:
                 drawing_mode = False
 
+<<<<<<< HEAD
             if drawing_mode and rect_x1 <= x1 <= rect_x2 and rect_y1 <= y1 <= rect_y2:
                 if xp == 0 and yp == 0:
                     xp, yp = x1, y1
@@ -99,6 +126,17 @@ while True:
             # Extract x, y coordinates of the thumb and index finger tips
             thumb_tip = tuple(lmList[4][:2])
             index_tip = tuple(lmList[8][:2])
+=======
+        if drawing_mode and rect_x1 <= x1 <= rect_x2 and rect_y1 <= y1 <= rect_y2:
+            if xp == 0 and yp == 0:
+                xp, yp = x1, y1
+
+            # Draw lines on the canvas when in drawing mode
+            cv2.line(canvas, (xp, yp), (x1, y1), pen_color, 10)
+            xp, yp = x1, y1
+        else:
+            xp, yp = 0, 0  # Reset if outside the drawing area
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 
             # Check if the thumb and index finger are close together to simulate a button click
             if detector.findDistance(thumb_tip, index_tip)[0] < 40:
@@ -109,6 +147,7 @@ while True:
                     # Crop the drawing area from the canvas
                     cropped_canvas = canvas[rect_y1:rect_y2, rect_x1:rect_x2]
 
+<<<<<<< HEAD
                     # Scale the cropped image to double its size (720x910 pixels)
                     scaled_canvas = cv2.resize(cropped_canvas, (720, 910), interpolation=cv2.INTER_LINEAR)
 
@@ -120,6 +159,38 @@ while True:
 
                     # Specify the absolute path to your print.py script
                     script_path = os.path.abspath("./print.py")
+=======
+        # Check if the thumb and index finger are close together to simulate a button click
+        if detector.findDistance(thumb_tip, index_tip)[0] < 40:
+            if (
+                save_button[0] < x1 < save_button[2]
+                and save_button[1] < y1 < save_button[3]
+            ):
+                cv2.imwrite("canvas.jpg", canvas)  # Save the current canvas
+                print("Canvas saved")
+
+            if (
+                clear_button[0] < x1 < clear_button[2]
+                and clear_button[1] < y1 < clear_button[3]
+            ):
+                canvas = np.zeros_like(canvas)  # Clear the canvas
+                print("Canvas cleared")
+
+    # Blend the canvas with the frame
+    frame = cv2.addWeighted(frame, 1, canvas, 0.5, 0)
+
+    # Draw the buttons
+    cv2.rectangle(frame, save_button[:2], save_button[2:], (0, 255, 0), cv2.FILLED)
+    cv2.putText(
+        frame,
+        "Save",
+        (save_button[0] + 10, save_button[1] + 40),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (255, 255, 255),
+        2,
+    )
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 
                     # Debugging: Check if the paths exist
                     if not os.path.exists(venv_python):
@@ -139,6 +210,7 @@ while True:
                     canvas = np.zeros_like(canvas)  # Clear the canvas
                     print("Canvas cleared")
 
+<<<<<<< HEAD
         # Blend the canvas with the frame
         frame = cv2.addWeighted(frame, 1, canvas, 0.5, 0)
 
@@ -164,6 +236,14 @@ while True:
             (255, 255, 255),
             2,
         )
+=======
+    # Show the webcam frame with drawing
+    cv2.imshow("Webcam and Canvas", frame)
+
+    # Break the loop if the 'q' key is pressed
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        break
+>>>>>>> 5cff601c39e99fe4fc0fa449e5cce7dbca0d7767
 
         # Draw the rectangle for the drawing area on the frame
         cv2.rectangle(frame, (rect_x1, rect_y1), (rect_x2, rect_y2), (255, 255, 255), 2)
